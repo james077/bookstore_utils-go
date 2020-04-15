@@ -1,13 +1,13 @@
 package rest_errors
 
+
 import (
-	//"encoding/json"
-	//"errors"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 )
 
-//RestErr a..
 type RestErr interface {
 	Message() string
 	Status() int
@@ -39,31 +39,23 @@ func (e restErr) Causes() []interface{} {
 	return e.ErrCauses
 }
 
-// NewBadRequestError a...
-/*func NewBadRequestError(message string) *restErr{
-	return &restErr{
-		Message: message,
-		Status: http.StatusBadRequest,
-		Error: "bad_request",
+func NewRestError(message string, status int, err string, causes []interface{}) RestErr {
+	return restErr{
+		ErrMessage: message,
+		ErrStatus:  status,
+		ErrError:   err,
+		ErrCauses:  causes,
 	}
 }
 
-
-func NewNotFoundError(message string) *restErr{
-	return &restErr{
-		Message: message,
-		Status: http.StatusNotFound,
-		Error: "not_fount",
+func NewRestErrorFromBytes(bytes []byte) (RestErr, error) {
+	var apiErr restErr
+	if err := json.Unmarshal(bytes, &apiErr); err != nil {
+		return nil, errors.New("invalid json")
 	}
+	return apiErr, nil
 }
 
-func NewInternalServerError(message string) *RestErr{
-	return &RestErr{
-		Message: message,
-		Status: http.StatusInternalServerError,
-		Error: "Internal_server_error",
-	}
-}*/
 func NewBadRequestError(message string) RestErr {
 	return restErr{
 		ErrMessage: message,
@@ -80,7 +72,15 @@ func NewNotFoundError(message string) RestErr {
 	}
 }
 
-func NewInternalServerError(message string, err error) restErr {
+func NewUnauthorizedError(message string) RestErr {
+	return restErr{
+		ErrMessage: message,
+		ErrStatus:  http.StatusUnauthorized,
+		ErrError:   "unauthorized",
+	}
+}
+
+func NewInternalServerError(message string, err error) RestErr {
 	result := restErr{
 		ErrMessage: message,
 		ErrStatus:  http.StatusInternalServerError,
