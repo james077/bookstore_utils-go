@@ -1,6 +1,5 @@
 package rest_errors
 
-
 import (
 	"encoding/json"
 	"errors"
